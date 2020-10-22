@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn_extract_audio).setOnClickListener(this);
         findViewById(R.id.btn_change_resolution).setOnClickListener(this);
         findViewById(R.id.btn_remux).setOnClickListener(this);
+        findViewById(R.id.btn_multi_command).setOnClickListener(this);
     }
 
     @Override
@@ -69,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_remux:
                 remux();
+                break;
+            case R.id.btn_multi_command:
+                multiWork();
                 break;
         }
     }
@@ -174,6 +178,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onEnd(int result) {
                         Log.i(TAG, "remux onEnd result : " + result);
+                    }
+                });
+            }
+        }.start();
+    }
+
+    private void multiWork() {
+        //
+        String srcPath1 = "/sdcard/MyVpVideo/3bb02win_general_record_20200910145648-00-00.MP4";
+        String dstPath1 = "/sdcard/MyVpVideo/a.mp4";
+
+        String srcPath2 = "/sdcard/MyVpVideo/3bb02win_general_record_20200910151448-00-00.MP4";
+        String dstPath2 = "/sdcard/MyVpVideo/b.mp4";
+
+        remux(srcPath1, dstPath1);
+        remux(srcPath2, dstPath2);
+    }
+
+    private void remux(String srcPath, final String dstPath) {
+        String command = "ffmpeg -i " + srcPath + " -c:a copy -c:v copy " + dstPath;
+        final String[] commandArr = command.split(" ");
+        new Thread() {
+            @Override
+            public void run() {
+                FFmpegCommand.execute(commandArr, new FFmpegCommand.ExecuteListener() {
+                    @Override
+                    public void onStart() {
+                        Log.i(TAG, "remux onStart detPath : " + dstPath);
+                    }
+
+                    @Override
+                    public void onEnd(int result) {
+                        Log.i(TAG, "remux onEnd result : " + result + ",dstPath : " + dstPath);
                     }
                 });
             }
