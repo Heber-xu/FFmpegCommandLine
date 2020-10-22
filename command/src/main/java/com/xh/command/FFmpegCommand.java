@@ -1,5 +1,6 @@
 package com.xh.command;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 /**
@@ -25,6 +26,34 @@ public class FFmpegCommand {
         if (listener != null) {
             listener.onEnd(result);
         }
+    }
+
+    public static void enqueue(String[] commands, final ExecuteListener listener) {
+        new AsyncTask<String[], Integer, Integer>() {
+
+            @Override
+            protected void onPreExecute() {
+                if (listener != null) {
+                    listener.onStart();
+                }
+            }
+
+            @Override
+            protected Integer doInBackground(String[]... params) {
+                return FFmpegCommand.execute(params[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Integer integer) {
+                if (listener != null) {
+                    listener.onEnd(integer);
+                }
+            }
+        }.execute(commands);
+    }
+
+    private static class Task {
+
     }
 
     public interface ExecuteListener {

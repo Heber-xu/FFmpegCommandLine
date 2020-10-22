@@ -1,6 +1,8 @@
 #include <jni.h>
 #include "ffmpeg.h"
 
+#define TAG "ffmpegcommand_c"
+
 //
 // Created by 徐航 on 2020/9/8.
 //
