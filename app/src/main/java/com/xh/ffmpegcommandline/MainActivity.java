@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.xh.command.FFmpegCommand;
+import com.xh.command.FFmpegCommandExecutor;
 
 import java.util.List;
 
@@ -85,17 +86,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new Thread() {
             @Override
             public void run() {
-                FFmpegCommand.execute(commands, new FFmpegCommand.ExecuteListener() {
-                    @Override
-                    public void onStart() {
-                        Log.i(TAG, "contactVideo onStart.");
-                    }
-
-                    @Override
-                    public void onEnd(int result) {
-                        Log.i(TAG, "contactVideo onEnd result : " + result);
-                    }
-                });
+                Log.i(TAG, "contactVideo start.");
+                int result = FFmpegCommand.execute(commands);
+                Log.i(TAG, "contactVideo end : " + result);
             }
         }.start();
     }
@@ -144,17 +137,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new Thread() {
             @Override
             public void run() {
-                FFmpegCommand.execute(commands, new FFmpegCommand.ExecuteListener() {
-                    @Override
-                    public void onStart() {
-                        Log.i(TAG, "changeResolution onStart.");
-                    }
-
-                    @Override
-                    public void onEnd(int result) {
-                        Log.i(TAG, "changeResolution onEnd result : " + result);
-                    }
-                });
+                Log.i(TAG, "changeResolution onStart.");
+                int result = FFmpegCommand.execute(commands);
+                Log.i(TAG, "changeResolution onEnd result : " + result);
             }
         }.start();
     }
@@ -169,17 +154,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new Thread() {
             @Override
             public void run() {
-                FFmpegCommand.execute(commandArr, new FFmpegCommand.ExecuteListener() {
-                    @Override
-                    public void onStart() {
-                        Log.i(TAG, "remux onStart.");
-                    }
-
-                    @Override
-                    public void onEnd(int result) {
-                        Log.i(TAG, "remux onEnd result : " + result);
-                    }
-                });
+                Log.i(TAG, "remux onStart.");
+                int result = FFmpegCommand.execute(commandArr);
+                Log.i(TAG, "remux onEnd result : " + result);
             }
         }.start();
     }
@@ -192,28 +169,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String srcPath2 = "/sdcard/MyVpVideo/3bb02win_general_record_20200910151448-00-00.MP4";
         String dstPath2 = "/sdcard/MyVpVideo/b.mp4";
 
-        remux(srcPath1, dstPath1);
-        remux(srcPath2, dstPath2);
+        //加入这个测试优先队列
+        FFmpegCommandExecutor.execute(null,0,null);
+        remux(srcPath1, dstPath1, 0);
+        remux(srcPath2, dstPath2, 1);
     }
 
-    private void remux(String srcPath, final String dstPath) {
+    private void remux(String srcPath, final String dstPath, int priority) {
         String command = "ffmpeg -i " + srcPath + " -c:a copy -c:v copy " + dstPath;
         final String[] commandArr = command.split(" ");
-        new Thread() {
-            @Override
-            public void run() {
-                FFmpegCommand.execute(commandArr, new FFmpegCommand.ExecuteListener() {
-                    @Override
-                    public void onStart() {
-                        Log.i(TAG, "remux onStart detPath : " + dstPath);
-                    }
 
-                    @Override
-                    public void onEnd(int result) {
-                        Log.i(TAG, "remux onEnd result : " + result + ",dstPath : " + dstPath);
-                    }
-                });
+        //多个线程执行会出现崩溃问题
+//        new Thread() {
+//            @Override
+//            public void run() {
+//                Log.i(TAG, "remux onStart detPath : " + dstPath);
+//                int result = FFmpegCommand.execute(commandArr);
+//                Log.i(TAG, "remux onEnd result : " + result + ",dstPath : " + dstPath);
+//            }
+//        }.start();
+
+        FFmpegCommandExecutor.execute(commandArr, priority, new FFmpegCommandExecutor.ExecuteListener() {
+            @Override
+            public void onStart() {
+                Log.i(TAG, "remux onStart detPath : " + dstPath);
             }
-        }.start();
+
+            @Override
+            public void onEnd(int result) {
+                Log.i(TAG, "remux onEnd result : " + result + ",dstPath : " + dstPath);
+            }
+        });
     }
 }

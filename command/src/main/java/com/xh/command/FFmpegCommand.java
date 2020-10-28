@@ -1,65 +1,27 @@
 package com.xh.command;
 
-import android.os.AsyncTask;
-import android.util.Log;
+import androidx.annotation.NonNull;
 
 /**
  * Created by xuhang on 2020-09-08.
  */
 public class FFmpegCommand {
 
-    private static final String TAG = "FFmpegCommand";
-
     static {
         System.loadLibrary("ijkffmpeg");
         System.loadLibrary("ffmpegcommand");
     }
 
-    public static native int execute(String[] commands);
+    /**
+     * 多个线程执行会出现崩溃问题，所以需要做成线程安全的
+     * todo 需要研究几个问题：
+     * 1、如果这里不是使用static方法，而是对象方法，那么需要做线程安全吗？
+     * 2、对于FFmpeg底层命令行相关代码（相关结构体）是否是针对进程全局的？
+     * 3、java native 类方法和对象方法对于底层C/C++代码有什么影响吗？
+     *
+     * @param commands
+     * @return
+     */
+    public static synchronized native int execute(String[] commands);
 
-    public static void execute(String[] commands, ExecuteListener listener) {
-        if (listener != null) {
-            listener.onStart();
-        }
-        int result = execute(commands);
-        Log.i(TAG, "execute result : " + result);
-        if (listener != null) {
-            listener.onEnd(result);
-        }
-    }
-
-    public static void enqueue(String[] commands, final ExecuteListener listener) {
-        new AsyncTask<String[], Integer, Integer>() {
-
-            @Override
-            protected void onPreExecute() {
-                if (listener != null) {
-                    listener.onStart();
-                }
-            }
-
-            @Override
-            protected Integer doInBackground(String[]... params) {
-                return FFmpegCommand.execute(params[0]);
-            }
-
-            @Override
-            protected void onPostExecute(Integer integer) {
-                if (listener != null) {
-                    listener.onEnd(integer);
-                }
-            }
-        }.execute(commands);
-    }
-
-    private static class Task {
-
-    }
-
-    public interface ExecuteListener {
-
-        void onStart();
-
-        void onEnd(int result);
-    }
 }
