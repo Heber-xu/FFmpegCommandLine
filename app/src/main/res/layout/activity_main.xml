@@ -47,6 +47,12 @@
             android:layout_height="wrap_content"
             android:text="同时执行多任务" />
 
+        <Button
+            android:id="@+id/btn_to_not_command"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="跳转到非命令行" />
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

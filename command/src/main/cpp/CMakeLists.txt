@@ -9,7 +9,8 @@ add_library(ffmpegcommand
         cmdutils.c
         ffmpeg.c
         ffmpeg_filter.c
-        ffmpeg_opt.c)
+        ffmpeg_opt.c
+        remux.c)
 
 add_library(ijkffmpeg SHARED IMPORTED)
 

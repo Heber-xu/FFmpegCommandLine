@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn_change_resolution).setOnClickListener(this);
         findViewById(R.id.btn_remux).setOnClickListener(this);
         findViewById(R.id.btn_multi_command).setOnClickListener(this);
+        findViewById(R.id.btn_to_not_command).setOnClickListener(this);
     }
 
     @Override
@@ -74,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_multi_command:
                 multiWork();
+                break;
+            case R.id.btn_to_not_command:
+                toNotCommand();
                 break;
         }
     }
@@ -170,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String dstPath2 = "/sdcard/MyVpVideo/b.mp4";
 
         //加入这个测试优先队列
-        FFmpegCommandExecutor.execute(null,0,null);
+        FFmpegCommandExecutor.execute(null, 0, null);
         remux(srcPath1, dstPath1, 0);
         remux(srcPath2, dstPath2, 1);
     }
@@ -200,5 +205,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "remux onEnd result : " + result + ",dstPath : " + dstPath);
             }
         });
+    }
+
+    private void toNotCommand() {
+        startActivity(new Intent(this, NotCommandActivity.class));
     }
 }
